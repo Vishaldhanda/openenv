@@ -20,6 +20,11 @@ def step(action: Action):
         "info": info
     }
 
-# 🔥 REQUIRED MAIN FUNCTION
+# ✅ REQUIRED FUNCTION
 def main():
     return app
+
+# 🔥 THIS WAS MISSING (IMPORTANT)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("server.app:app", host="0.0.0.0", port=7860)
