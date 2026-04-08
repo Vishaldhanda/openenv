@@ -10,26 +10,38 @@ client = OpenAI(
 )
 
 def llm_agent(email):
-    prompt = f"""
-    Classify this email as urgent, normal, or spam:
+    try:
+        prompt = f"""
+        Classify this email as urgent, normal, or spam:
 
-    Subject: {email.subject}
-    Body: {email.body}
-    """
+        Subject: {email.subject}
+        Body: {email.body}
+        """
 
-    response = client.chat.completions.create(
-        model=os.environ.get("MODEL_NAME", "gpt-4o-mini"),
-        messages=[{"role": "user", "content": prompt}]
-    )
+        response = client.chat.completions.create(
+            model=os.environ.get("MODEL_NAME", "gpt-4o-mini"),
+            messages=[{"role": "user", "content": prompt}]
+        )
 
-    text = response.choices[0].message.content.lower()
+        text = response.choices[0].message.content.lower()
 
-    if "spam" in text:
-        return "spam"
-    elif "urgent" in text:
-        return "urgent"
-    else:
-        return "normal"
+        if "spam" in text:
+            return "spam"
+        elif "urgent" in text:
+            return "urgent"
+        else:
+            return "normal"
+
+    except Exception:
+        # 🔥 FALLBACK (VERY IMPORTANT)
+        text = (email.subject + " " + email.body).lower()
+
+        if any(x in text for x in ["sale", "offer", "buy", "discount"]):
+            return "spam"
+        elif any(x in text for x in ["urgent", "asap", "meeting", "server", "fix"]):
+            return "urgent"
+        else:
+            return "normal"
 
 
 def run_task(task):
