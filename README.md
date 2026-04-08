@@ -1,3 +1,14 @@
+---
+title: Email Triage OpenEnv
+emoji: 📧
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
+# Email Triage OpenEnv
 # Email Triage OpenEnv
 
 ## Description
