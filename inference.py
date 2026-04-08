@@ -9,6 +9,7 @@ client = OpenAI(
     api_key=os.environ.get("API_KEY")
 )
 
+
 def llm_agent(email):
     try:
         prompt = f"""
@@ -51,12 +52,13 @@ def run_task(task):
     total_reward = 0
     step = 0
 
+    # ✅ START
     print(f"[START] task={task}", flush=True)
 
     while True:
         email = obs.current_email
 
-        # ✅ USE LLM (IMPORTANT)
+        # ✅ LLM call
         label = llm_agent(email)
 
         action = Action(action_type="classify", label=label)
@@ -66,14 +68,21 @@ def run_task(task):
         total_reward += reward.score
         step += 1
 
+        # ✅ STEP
         print(f"[STEP] step={step} reward={reward.score}", flush=True)
 
         if done:
             break
 
-    print(f"[END] task={task} total_reward={total_reward} steps={step}", flush=True)
+    # ✅ SCORE CALCULATION (INSIDE FUNCTION)
+    score = total_reward / (step * 2) if step > 0 else 0.5
+    score = max(0.01, min(0.99, score))  # strictly (0,1)
+
+    # ✅ END
+    print(f"[END] task={task} score={score} steps={step}", flush=True)
 
 
+# ✅ MAIN
 if __name__ == "__main__":
     for t in ["easy", "medium", "hard"]:
         run_task(t)
