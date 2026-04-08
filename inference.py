@@ -1,15 +1,36 @@
+import os
+from openai import OpenAI
 from env.environment import EmailEnv
 from env.models import Action
 
-def simple_agent(email):
-    text = (email.subject + " " + email.body).lower()
+# ✅ USE THEIR PROXY
+client = OpenAI(
+    base_url=os.environ.get("API_BASE_URL"),
+    api_key=os.environ.get("API_KEY")
+)
 
-    if any(x in text for x in ["sale", "offer", "buy", "discount"]):
+def llm_agent(email):
+    prompt = f"""
+    Classify this email as urgent, normal, or spam:
+
+    Subject: {email.subject}
+    Body: {email.body}
+    """
+
+    response = client.chat.completions.create(
+        model=os.environ.get("MODEL_NAME", "gpt-4o-mini"),
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    text = response.choices[0].message.content.lower()
+
+    if "spam" in text:
         return "spam"
-    elif any(x in text for x in ["urgent", "asap", "meeting", "server", "fix"]):
+    elif "urgent" in text:
         return "urgent"
     else:
         return "normal"
+
 
 def run_task(task):
     env = EmailEnv(task)
@@ -18,12 +39,13 @@ def run_task(task):
     total_reward = 0
     step = 0
 
-    # ✅ START BLOCK
     print(f"[START] task={task}", flush=True)
 
     while True:
         email = obs.current_email
-        label = simple_agent(email)
+
+        # ✅ USE LLM (IMPORTANT)
+        label = llm_agent(email)
 
         action = Action(action_type="classify", label=label)
 
@@ -32,13 +54,11 @@ def run_task(task):
         total_reward += reward.score
         step += 1
 
-        # ✅ STEP BLOCK
         print(f"[STEP] step={step} reward={reward.score}", flush=True)
 
         if done:
             break
 
-    # ✅ END BLOCK
     print(f"[END] task={task} total_reward={total_reward} steps={step}", flush=True)
 
 
