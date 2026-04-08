@@ -1,0 +1,12 @@
+name: email-triage-env
+description: Real-world email classification and response environment
+version: 1.0
+
+observation: Observation
+action: Action
+reward: Reward
+
+tasks:
+  - easy
+  - medium
+  - hard
