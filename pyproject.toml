@@ -1,0 +1,13 @@
+[project]
+name = "email-triage-openenv"
+version = "0.1.0"
+description = "OpenEnv environment for email classification and triage"
+authors = [{ name = "Vishal Dhanda" }]
+dependencies = [
+    "pydantic",
+    "fastapi",
+    "uvicorn"
+]
+
+[tool.setuptools]
+packages = ["env"]
